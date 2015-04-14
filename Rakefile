@@ -60,7 +60,7 @@ module Helpers
     mkdir "#{BUILDDIR}/#{name}"
 
     steps = Dir.chdir(CODE_DIR) do
-      `git rev-list --reverse #{chapter_start(name, branch)} #{chapter_end(name, branch)}`
+      `git rev-list --reverse --bounday ^#{chapter_start(name, branch)} #{chapter_end(name, branch)}`
     end.split
 
     steps.each.with_index(1) do |step_revision, step_number|
@@ -88,7 +88,7 @@ namespace :chapter do
     branch = args[:branch] || "HEAD"
 
     Dir.chdir(CODE_DIR) do
-      puts `git rev-list --pretty=format:"%s" --reverse #{chapter_start(name, branch)} #{chapter_end(name, branch)} | grep -v "^commit [0-9a-f]\\{40\\}$" | awk '{printf "%02d - %s\\n", NR, $0}'`
+      puts `git rev-list --boundary --pretty=format:"%s" --reverse ^#{chapter_start(name, branch)} #{chapter_end(name, branch)} | grep -v "^commit -\\?[0-9a-f]\\{40\\}$" | awk '{printf "%02d - %s\\n", NR, $0}'`
     end
   end
 
