@@ -30,13 +30,13 @@ module Helpers
 
   def chapter_start_refs(branch="HEAD")
     Dir.chdir(CODE_DIR) do
-      `git rev-list --grep "BOOK: begin-chapter" #{branch} --reverse`.split
+      `git rev-list --grep "^BOOK: begin-chapter" #{branch} --reverse`.split
     end
   end
 
   def chapter_start(name, branch="HEAD")
     Dir.chdir(CODE_DIR) do
-      `git rev-parse --verify :/"BOOK: begin-chapter #{name}"`.chomp
+      `git rev-list --grep "^BOOK: begin-chapter #{name}$" #{branch} --reverse`.chomp
     end
   end
 
@@ -55,12 +55,23 @@ module Helpers
     rm_rf "#{BUILDDIR}/#{name}"
   end
 
+  def range_condition(name, branch)
+    ch_start = chapter_start(name, branch)
+    ch_end = chapter_end(name, branch)
+
+    if ch_start != ch_end
+      %{--boundary ^#{ch_start} #{ch_end}}
+    else
+      %{#{ch_start}^!}
+    end
+  end
+
   def build_chapter(name, branch)
     clean_build_dir(name)
     mkdir "#{BUILDDIR}/#{name}"
 
     steps = Dir.chdir(CODE_DIR) do
-      `git rev-list --reverse --bounday ^#{chapter_start(name, branch)} #{chapter_end(name, branch)}`
+      `git rev-list --reverse #{range_condition(name, branch)}`
     end.split
 
     steps.each.with_index(1) do |step_revision, step_number|
@@ -69,6 +80,16 @@ module Helpers
       extract_revision(step_revision, working_dir)
       run_features_in working_dir
     end
+  end
+
+  def deploy_chapter(name, branch)
+    build_chapter(name, branch)
+
+    chapter_build_dir = File.join(BUILDDIR, name)
+    chapter_code_dir = File.join(BOOKCODEDIR, name)
+
+    rm_rf chapter_code_dir
+    cp_r chapter_build_dir, BOOKCODEDIR
   end
 end
 
@@ -88,7 +109,7 @@ namespace :chapter do
     branch = args[:branch] || "HEAD"
 
     Dir.chdir(CODE_DIR) do
-      puts `git rev-list --boundary --pretty=format:"%s" --reverse ^#{chapter_start(name, branch)} #{chapter_end(name, branch)} | grep -v "^commit -\\?[0-9a-f]\\{40\\}$" | awk '{printf "%02d - %s\\n", NR, $0}'`
+      puts `git rev-list --pretty=format:"%s" --reverse #{range_condition(name, branch)} | grep -v "^commit -\\?[0-9a-f]\\{40\\}$" | awk '{printf "%02d - %s\\n", NR, $0}'`
     end
   end
 
@@ -115,17 +136,11 @@ namespace :chapter do
   end
 
   desc "deploy chapter to book"
-  task :deploy, [:name, :branch] do |t, args|
+  task :deploy, [:name, :branch] => :bundle do |t, args|
     name = required(:name, args)
     branch = args[:branch] || "HEAD"
 
-    build_chapter(name, branch)
-
-    chapter_build_dir = File.join(BUILDDIR, name)
-    chapter_code_dir = File.join(BOOKCODEDIR, name)
-
-    rm_rf chapter_code_dir
-    cp_r chapter_build_dir, BOOKCODEDIR
+    deploy_chapter(name, branch)
   end
 
   desc "clean output files"
