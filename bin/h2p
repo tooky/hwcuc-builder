@@ -1,0 +1,27 @@
+#!/bin/bash
+# HTML to Pragmatic markup converter. Converts a2h output to Pragmatic colours.
+
+# failing
+sed -e "s|<span style='color:#A00'><b>|<literal:shade bg='white' fg='black'>|g" | \
+sed -e "s|<span style='color:#A00'>|<literal:shade fg='red'>|g" | \
+
+# passing
+sed -e "s|<span style='color:#0A0'><b>|<literal:shade bg='white' fg='black'>|g" | \
+sed -e "s|<span style='color:#0A0'>|<literal:shade fg='green'>|g" | \
+
+# missing/undefined
+sed -e "s|<span style='color:#A50'><b>|<literal:shade bg='white' fg='black'>|g" | \
+sed -e "s|<span style='color:#A50'>|<literal:shade fg='magenta'>|g" | \
+
+# skipped
+sed -e "s|<span style='color:#0AA'><b>|<literal:shade bg='white' fg='black'>|g" | \
+sed -e "s|<span style='color:#0AA'>|<literal:shade fg='blue'>|g" | \
+
+# comments
+sed -e "s|<span style='color:#555'>|<literal:shade fg='black'>|g" | \
+
+# closing tags
+sed -e "s|</b></span>|</literal:shade>|g" | \
+sed -e "s|</span>|</literal:shade>|g" | \
+
+cat

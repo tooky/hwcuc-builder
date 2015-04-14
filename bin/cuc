@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ -f build_options ];
+then
+  build_options=`cat build_options`
+else
+  build_options=''
+fi
+
+if [ -f Gemfile ];
+then
+  current_gemfile='Gemfile'
+else
+  current_gemfile=$BUNDLE_GEMFILE
+fi
+BUNDLE_GEMFILE=$current_gemfile bundle exec cucumber $build_options
