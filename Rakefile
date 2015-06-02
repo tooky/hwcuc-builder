@@ -28,6 +28,10 @@ module Helpers
     end
   end
 
+  def all_chapters(branch)
+    `cd #{CODE_DIR} && git rev-list --grep="BOOK: begin-chapter" --pretty=format:"%s%n%b" #{branch} --reverse | grep "BOOK: begin-chapter" | sed 's/^BOOK: begin-chapter //'`.split
+  end
+
   def chapter_start_refs(branch="HEAD")
     Dir.chdir(CODE_DIR) do
       `git rev-list --grep "^BOOK: begin-chapter" #{branch} --reverse`.split
@@ -72,7 +76,7 @@ module Helpers
 
     steps = Dir.chdir(CODE_DIR) do
       `git rev-list --reverse #{range_condition(name, branch)}`
-    end.split
+    end.split.map { |r| r.gsub(/^-/, '') }
 
     steps.each.with_index(1) do |step_revision, step_number|
       working_dir = File.join(BUILDDIR, name, sprintf("%02d", step_number))
@@ -100,7 +104,8 @@ namespace :chapter do
   desc "list chapters"
   task :list, [:branch] do |t, args|
     branch = args[:branch] || "HEAD"
-    puts `cd #{CODE_DIR} && git rev-list --grep="BOOK: begin-chapter" --pretty=format:"%s%n%b" #{branch} --reverse | grep "BOOK: begin-chapter" | sed 's/^BOOK: begin-chapter //'`
+
+    puts all_chapters(branch)
   end
 
   desc "show list of steps in a chapter"
@@ -141,6 +146,15 @@ namespace :chapter do
     branch = args[:branch] || "HEAD"
 
     deploy_chapter(name, branch)
+  end
+
+  desc "deploy all chapters to book"
+  task :"deploy:all", [:branch] => :bundle do |t, args|
+    branch = args[:branch] || "HEAD"
+
+    all_chapters(branch).each do |name|
+      deploy_chapter(name, branch)
+    end
   end
 
   desc "clean output files"
