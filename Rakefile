@@ -48,15 +48,19 @@ module Helpers
     start = chapter_start(name, branch)
     start_refs = chapter_start_refs(branch)
     next_start = start_refs[start_refs.index(start) + 1]
-    return branch unless next_start
+    return rev_parse(branch) unless next_start
 
-    Dir.chdir(CODE_DIR) do
-      `git rev-parse --verify #{next_start}^`.chomp
-    end
+    rev_parse("#{next_start}^")
   end
 
   def clean_build_dir(name)
     rm_rf "#{BUILDDIR}/#{name}"
+  end
+
+  def rev_parse(ref)
+    Dir.chdir(CODE_DIR) do
+      `git rev-parse --verify #{ref}`.chomp
+    end
   end
 
   def range_condition(name, branch)
