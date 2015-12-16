@@ -45,8 +45,8 @@ module RunsAndFormatsFeatures
     pmlcolor     = output_for(feature, '.pmlcolor')
 
     Dir.chdir(project_dir) do
-      if File.exist?('script/rails')
-        `bundle exec rake db:migrate db:test:prepare`
+      if File.exist?('bin/rails')
+        `BUNDLE_GEMFILE=Gemfile bundle exec bin/rake db:migrate db:test:prepare`
       end
 
       if File.exist?('Gemfile')
