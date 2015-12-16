@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -f build_options ];
 then
@@ -13,4 +13,4 @@ then
 else
   current_gemfile=$BUNDLE_GEMFILE
 fi
-BUNDLE_GEMFILE=$current_gemfile bundle exec cucumber $build_options
+BUNDLE_GEMFILE=$current_gemfile bundle exec cucumber $build_options "$@"
