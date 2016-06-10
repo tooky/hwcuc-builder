@@ -8,7 +8,7 @@ BUILD_GEMFILE_LOCK = File.join(BUILDDIR, "Gemfile.lock")
 
 CODE_DIR = File.join(ROOTDIR, "hwcuc-code")
 
-BOOKDIR     = File.expand_path("hwcuc/Book", ROOTDIR)
+BOOKDIR     = File.expand_path("hwcuc2/Book", ROOTDIR)
 BOOKCODEDIR = File.join(BOOKDIR, "code")
 
 MASTER_GEMFILE      = File.join(BOOKDIR, "Gemfile")
@@ -118,7 +118,7 @@ namespace :chapter do
     branch = args[:branch] || "HEAD"
 
     Dir.chdir(CODE_DIR) do
-      puts `git rev-list --pretty=format:"%s" --reverse #{range_condition(name, branch)} | grep -v "^commit -\\?[0-9a-f]\\{40\\}$" | awk '{printf "%02d - %s\\n", NR, $0}'`
+      puts `git rev-list --pretty=format:"%s (%h)" --reverse #{range_condition(name, branch)} | grep -v "^commit -\\?[0-9a-f]\\{40\\}$" | awk '{printf "%02d - %s\\n", NR, $0}'`
     end
   end
 
