@@ -101,6 +101,21 @@ module Helpers
   end
 end
 
+namespace :section do
+  task :list do
+    Dir.chdir(CODE_DIR) do
+      puts `git branch | grep -v master`
+    end
+  end
+
+  task :switch, [:name] do |t, args|
+    name = required(:name, args)
+    Dir.chdir(CODE_DIR) do
+      `git co #{name}`
+    end
+  end
+end
+
 namespace :chapter do
   include Helpers
   include RunsAndFormatsFeatures
