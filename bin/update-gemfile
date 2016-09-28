@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+working_file=ARGV[0]
+source_file=ARGV[1]
+
+GEM_LINE_REGEXP=/^\s*gem\s+'([\w-]+)'\s*,\s*'([\w\-\.]+)'.*$/
+
+def update_version(line, versions)
+  match = line.match(GEM_LINE_REGEXP)
+  return line unless match
+  new_version = versions.fetch(match[1])
+  return line.sub(match[2], new_version)
+end
+
+def extract_version(line)
+  match = line.match(GEM_LINE_REGEXP)
+  if match
+    { match[1] => match[2] }
+  else
+    {}
+  end
+end
+
+source_gemfile = File.readlines(source_file)
+gem_versions = source_gemfile.reduce({}) { |versions, line|
+  versions.merge(extract_version(line))
+}
+
+working_gemfile = File.readlines(working_file)
+
+updated_gemfile = working_gemfile.map { |line| update_version(line, gem_versions) }
+
+File.open(working_file, "w") do |file|
+  file.puts(updated_gemfile)
+end
