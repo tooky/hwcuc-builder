@@ -5,13 +5,14 @@ module RunsAndFormatsFeatures
 
   def normalise_line(line)
     return nil if line =~ /^Using the default profile/
-    line = line.gsub(/\/Users\/matt/, '~')
-    line = line.gsub(/\/Users\/ahellesoy/, '~')
+    line = line.gsub(/\/Users\/\w+/, '~')
     # line = line.gsub(/\dm\d\.\d\d\ds/, '0m0.003s') # TODO: Remove this before print for more real numbers.
     # Reproducible hex numbers (#to_s values)
     line = line.gsub(/0x[0-9a-f]*/, '0x63756b65') # Hex for 'cuke' :-)
     line = line.gsub(/~\/.rvm\/rubies\/ruby-[^\/]*\/bin\/ruby/, '/usr/bin/ruby')
+    line = line.gsub(/~\/.gem\/ruby\/[\d\.]+\/gems\//, '~/gems/')
     line = line.gsub(/~\/(projects|scm|github)\/(hwcuc_git|hwcuc|hwcuc2)\/Book\/code/, '~')
+    line = line.gsub(/~\/.+\/working/, '~')
 
     # ServiceManager output (for message_queues chapter)
     line = line.gsub(/Server.*transaction_processor.*is up/, 'Server transaction_processor (94557) is up')
