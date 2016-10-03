@@ -10,6 +10,7 @@ module RunsAndFormatsFeatures
     # Reproducible hex numbers (#to_s values)
     line = line.gsub(/0x[0-9a-f]*/, '0x63756b65') # Hex for 'cuke' :-)
     line = line.gsub(/~\/.rvm\/rubies\/ruby-[^\/]*\/bin\/ruby/, '/usr/bin/ruby')
+    line = line.gsub(/\/opt\/rubies\/ruby-[\d\.]+\/bin\/ruby/, '/usr/bin/ruby')
     line = line.gsub(/~\/.gem\/ruby\/[\d\.]+\/gems\//, '~/gems/')
     line = line.gsub(/~\/(projects|scm|github)\/(hwcuc_git|hwcuc|hwcuc2)\/Book\/code/, '~')
     line = line.gsub(/~\/.+\/working/, '~')
